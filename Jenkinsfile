@@ -13,29 +13,19 @@ pipeline {
 		        git 'https://github.com/archna1402/aem-wknd.git'
             }
         }
-		
-		stage('Sonarqube') {
-    environment {
+        stage(''Sonar Analysis'') {
+		environment {
         scannerHome = tool 'SonarQubeScanner'
     }
-    steps {
-        withSonarQubeEnv(credentialsId: 'loyltydemo', installationName: 'sonarqualitygate'){
-           // sh "${scannerHome}/bin/sonar-scanner"
-		      sh 'mvn clean package sonar:sonar'
-        }
-        timeout(time: 10, unit: 'MINUTES') {
-            waitForQualityGate abortPipeline: true
-			
-        }
-    }
-}
-
-        stage('Build and Test') {
             steps {
-                //input ('Do you want to proceed?')
+        withSonarQubeEnv(credentialsId: 'loyltydemo', installationName: 'sonarqualitygate'){
                 script {
                     try {
-                        sh 'mvn clean package' 
+						sh 'mvn clean package sonar:sonar'
+						timeout(time: 10, unit: 'MINUTES') {
+						waitForQualityGate abortPipeline: true
+			
+						}
                         echo "Build completed. RESULT: ${currentBuild.currentResult}"
                     } catch (Throwable e) {
                         echo "The current build has failed. Please check logs."
