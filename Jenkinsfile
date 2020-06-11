@@ -13,7 +13,7 @@ pipeline {
 		        git 'https://github.com/archna1402/aem-wknd.git'
             }
         }
-        stage(''Sonar Analysis'') {
+        stage('Sonar Analysis') {
 		environment {
         scannerHome = tool 'SonarQubeScanner'
     }
