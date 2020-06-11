@@ -25,7 +25,7 @@ pipeline {
 						sh 'mvn clean package sonar:sonar'
 						}
 						timeout(time: 10, unit: 'MINUTES') {
-						waitForQualityGate webhookSecretId: 'http://3.6.165.101:9000/sonar-qube/',abortPipeline: true
+						waitForQualityGate webhookSecretId: 'sonarqube-webhook',abortPipeline: true
 			
 					}
                         echo "Build completed. RESULT: ${currentBuild.currentResult}"
