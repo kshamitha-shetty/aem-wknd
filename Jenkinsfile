@@ -13,8 +13,9 @@ pipeline {
 		        git 'https://github.com/archna1402/aem-wknd.git'
             }
         }
+
         stage('Sonar Analysis') {
-		environment {
+		 environment {
         scannerHome = tool 'SonarQubeScanner'
     }
             steps {
@@ -25,7 +26,7 @@ pipeline {
 						timeout(time: 10, unit: 'MINUTES') {
 						waitForQualityGate abortPipeline: true
 			
-						}
+					}
                         echo "Build completed. RESULT: ${currentBuild.currentResult}"
                     } catch (Throwable e) {
                         echo "The current build has failed. Please check logs."
