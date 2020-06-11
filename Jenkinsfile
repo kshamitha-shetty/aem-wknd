@@ -19,10 +19,11 @@ pipeline {
         scannerHome = tool 'SonarQubeScanner'
     }
             steps {
-        withSonarQubeEnv(credentialsId: 'loyltydemo', installationName: 'sonarqualitygate'){
                 script {
                     try {
+					   withSonarQubeEnv(credentialsId: 'loyltydemo', installationName: 'sonarqualitygate'){
 						sh 'mvn clean package sonar:sonar'
+						}
 						timeout(time: 10, unit: 'MINUTES') {
 						waitForQualityGate abortPipeline: true
 			
@@ -88,4 +89,4 @@ pipeline {
         }
     }
 }
-}
+
