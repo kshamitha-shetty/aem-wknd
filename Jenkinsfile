@@ -22,7 +22,7 @@ pipeline {
                 script {
                     try {
 					   withSonarQubeEnv(credentialsId: 'loyltydemo', installationName: 'sonarqualitygate'){
-						sh 'mvn clean package sonar:sonar'
+							sh "${scannerHome}/bin/sonar-scanner"
 						}
 						timeout(time: 10, unit: 'MINUTES') {
 						waitForQualityGate abortPipeline: true
