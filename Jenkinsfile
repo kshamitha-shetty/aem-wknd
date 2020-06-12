@@ -38,8 +38,8 @@ pipeline {
             steps {
                 echo "SonarQube Analysis"
 				withSonarQubeEnv(credentialsId: 'loyltydemo', installationName: 'sonarqualitygate'){
-           // sh "${scannerHome}/bin/sonar-scanner"
-		      sh 'mvn clean package sonar:sonar'
+           sh "${scannerHome}/bin/sonar-scanner"
+		      //sh 'mvn clean package sonar:sonar'
         }
         timeout(time: 10, unit: 'MINUTES') {
             waitForQualityGate abortPipeline: true
