@@ -11,7 +11,7 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 echo 'Checking out git repository'
-		        git 'https://github.com/archna1402/aem-wknd.git'
+		        git 'https://github.com/kshamitha-shetty/aem-wknd.git'
             }
         }
 		
