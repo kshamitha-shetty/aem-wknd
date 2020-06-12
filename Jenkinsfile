@@ -1,3 +1,4 @@
+def mavenPom
 pipeline {
     agent any
     tools {
@@ -10,24 +11,17 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 echo 'Checking out git repository'
-		        git 'https://github.com/kshamitha-shetty/aem-wknd.git'
+		        git 'https://github.com/archna1402/aem-wknd.git'
             }
         }
+		
 
-        stage('Sonar Analysis') {
-		 environment {
-        scannerHome = tool 'SonarQubeScanner'
-    }
+        stage('Build and Test') {
             steps {
+                //input ('Do you want to proceed?')
                 script {
                     try {
-					   withSonarQubeEnv(credentialsId: 'loyltydemo', installationName: 'sonarqualitygate'){
-						sh 'mvn clean package sonar:sonar'
-						}
-						timeout(time: 10, unit: 'MINUTES') {
-						waitForQualityGate abortPipeline: true
-			
-					}
+                        sh 'mvn clean install' 
                         echo "Build completed. RESULT: ${currentBuild.currentResult}"
                     } catch (Throwable e) {
                         echo "The current build has failed. Please check logs."
@@ -36,12 +30,29 @@ pipeline {
                 }
             }
         }
+		
+		stage('SonarQube Analysis') {
+		environment {
+        scannerHome = tool 'SonarQubeScanner'
+    }
+            steps {
+                echo "SonarQube Analysis"
+				withSonarQubeEnv(credentialsId: 'loyltydemo', installationName: 'sonarqualitygate'){
+           // sh "${scannerHome}/bin/sonar-scanner"
+		      sh 'mvn clean package sonar:sonar'
+        }
+        timeout(time: 10, unit: 'MINUTES') {
+            waitForQualityGate abortPipeline: true
+			
+        }
+            }
+        }
 
 		stage('Upload Artifacts to Nexus') {
 		    
 				steps{
 					script{
-						def mavenPom = readMavenPom file: 'pom.xml'
+						mavenPom = readMavenPom file: 'pom.xml'
 						nexusArtifactUploader artifacts: 
 							[[artifactId: 'aem-guides-wknd',
 							    classifier: 'all', 
@@ -59,21 +70,22 @@ pipeline {
 				}	
 
       stage('Deploy to AEM server') {
-
 			steps { 
 					echo "Deploy to AEM Author Instance"
-					sh "mvn install -PautoInstallPackage -Padobe-public"
-					echo "Deploy to AEM Publish Instance"
-					sh "mvn install -PautoInstallPackagePublish -Padobe-public"
-				  }
+					script{
+						mavenPom = readMavenPom file: 'pom.xml'
+						sh "curl -u admin:admin -F file=@'/var/lib/jenkins/.m2/repository/com/adobe/aem/guides/aem-guides-wknd.all/${mavenPom.version}/aem-guides-wknd.all-${mavenPom.version}.zip' -F name='aem-guides-wknd.all-${mavenPom.version}' -F force=true -F install=true http://localhost:4502/crx/packmgr/service.jsp"
+						echo "Deploy to AEM Publish Instance"
+						sh "curl -u admin:admin -F file=@'/var/lib/jenkins/.m2/repository/com/adobe/aem/guides/aem-guides-wknd.all/${mavenPom.version}/aem-guides-wknd.all-${mavenPom.version}.zip' -F name='aem-guides-wknd.all-${mavenPom.version}' -F force=true -F install=true http://localhost:4503/crx/packmgr/service.jsp"
+					}
 			}
-
      }
+	 
+	}
 
     post {
         success {
             sh '/var/lib/jenkins/scripts/clear_dispatcher_cache.sh'
-            //echo 'Clear CDN cache'
             echo "Build Success : : ${env.BUILD_NUMBER}"
 			echo "RESULT: ${currentBuild.currentResult}"
         }
@@ -85,8 +97,7 @@ pipeline {
 			emailext attachLog: true,
             subject: "Status of Build : ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${currentBuild.result}",
             body: "${env.JOB_NAME} #${env.BUILD_NUMBER} has result ${currentBuild.result}.\n\nView the console at: ${env.BUILD_URL}. Build log is attached.\n\n",
-			to: 'kshamitha@epsilonconversant.com'
+			to: 'archna@epsilon.com harikrishnan.suresh@epsilonconversant.com eshan.verma@epsilonconversant.com srinivas.garimella@epsilonconversant.com kshamitha@epsilonconversant.com'
         }
     }
 }
-
