@@ -11,7 +11,7 @@ pipeline {
         stage('Git Checkout') {
             steps {
                 echo 'Checking out git repository'
-		        git 'https://github.com/archna1402/aem-wknd.git'
+		        git 'https://github.com/kshamitha-shetty/aem-wknd.git'
             }
         }
 		
@@ -97,7 +97,7 @@ pipeline {
 			emailext attachLog: true,
             subject: "Status of Build : ${env.JOB_NAME} #${env.BUILD_NUMBER} - ${currentBuild.result}",
             body: "${env.JOB_NAME} #${env.BUILD_NUMBER} has result ${currentBuild.result}.\n\nView the console at: ${env.BUILD_URL}. Build log is attached.\n\n",
-			to: 'archna@epsilon.com harikrishnan.suresh@epsilonconversant.com eshan.verma@epsilonconversant.com srinivas.garimella@epsilonconversant.com kshamitha@epsilonconversant.com'
+			to: 'kshamitha@epsilonconversant.com'
         }
     }
 }
